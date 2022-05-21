@@ -637,6 +637,8 @@ Consider:
             synch.configurationSection <- Some !^ "FSharp"
             synch.fileEvents <- Some(!^ ResizeArray([ fileDeletedWatcher ]))
 
+            // this type needs to be updated on the bindings - DocumentSelector is a (string|DocumentFilter) [] now only.
+            // that's why we need to coerce it here.
             opts.documentSelector <- Some !^ [| selector |]
             opts.synchronize <- Some synch
             opts.revealOutputChannelOn <- Some Client.RevealOutputChannelOn.Never
