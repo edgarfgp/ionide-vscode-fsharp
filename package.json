@@ -1,7 +1,7 @@
 {
   "scripts": {
     "gen:semver": "ts2fable node_modules/@types/semver/{classes,functions,internals,ranges}/*.d.ts  node_modules/@types/semver/index.d.ts src/Imports/Semver.fs",
-    "bundle" : "esbuild ./out/fsharp.js --bundle --outfile=release/fsharp.js --external:vscode --format=cjs --platform=node --sourcemap"
+    "bundle" : "node bundle.js"
   },
   "dependencies": {
     "htmlparser2": "^4.1.0",
