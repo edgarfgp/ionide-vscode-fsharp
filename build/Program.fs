@@ -64,10 +64,6 @@ module Fable =
         | Watch
         | Clean
 
-    type Webpack =
-        | WithoutWebpack
-        | WithWebpack of args: string option
-
     type Args =
         { Command: Command
           Debug: bool
@@ -76,8 +72,7 @@ module Fable =
           OutDir: string option
           Defines: string list
           SourceMaps: bool
-          AdditionalFableArgs: string option
-          Webpack: Webpack }
+          AdditionalFableArgs: string option }
 
     let DefaultArgs =
         { Command = Build
@@ -87,8 +82,7 @@ module Fable =
           OutDir = Some "./out"
           Defines = []
           AdditionalFableArgs = None
-          SourceMaps = true
-          Webpack = WithoutWebpack }
+          SourceMaps = true }
 
     let private mkArgs args =
         let fableCmd =
@@ -123,30 +117,11 @@ module Fable =
 
         let fableAdditionalArgs = args.AdditionalFableArgs |> Option.defaultValue ""
 
-        let webpackCmd =
-            match args.Webpack with
-            | WithoutWebpack -> ""
-            | WithWebpack webpackArgs ->
-                sprintf
-                    "--%s webpack %s %s %s"
-                    (match args.Command with
-                     | Watch -> "runWatch"
-                     | _ -> "run")
-                    (if args.Debug then
-                         "--mode=development"
-                     else
-                         "--mode=production")
-                    (if args.Experimental then
-                         "--env.ionideExperimental"
-                     else
-                         "")
-                    (webpackArgs |> Option.defaultValue "")
-
         let sourceMaps = if args.SourceMaps then "-s" else ""
 
-        // $"{fableCmd} {fableProjPath} {sourcemaps} {fableOutDir} {fableDebug} {fableExperimental} {fableDefines} {fableAdditionalArgs} {webpackCmd}"
+        // $"{fableCmd} {fableProjPath} {sourcemaps} {fableOutDir} {fableDebug} {fableExperimental} {fableDefines} {fableAdditionalArgs}"
         sprintf
-            "%s %s %s %s %s %s %s %s %s"
+            "%s %s %s %s %s %s %s %s"
             fableCmd
             fableProjPath
             sourceMaps
@@ -155,7 +130,6 @@ module Fable =
             fableExperimental
             fableDefines
             fableAdditionalArgs
-            webpackCmd
 
     let run args =
         let cmd = mkArgs args
@@ -298,8 +272,7 @@ let initTargets () =
         Fable.run
             { Fable.DefaultArgs with
                 Command = Fable.Watch
-                Debug = true
-                Webpack = Fable.WithoutWebpack })
+                Debug = true })
 
     Target.create "InstallVSCE" (fun _ ->
         Process.killAllByName "npm"
@@ -313,8 +286,7 @@ let initTargets () =
         Fable.run
             { Fable.DefaultArgs with
                 Command = Fable.Build
-                Debug = false
-                Webpack = Fable.WithoutWebpack })
+                Debug = false })
 
     Target.create "Bundle" (fun _ -> Yarn.exec "run bundle" id)
 
@@ -322,8 +294,7 @@ let initTargets () =
         Fable.run
             { Fable.DefaultArgs with
                 Command = Fable.Build
-                Debug = true
-                Webpack = Fable.WithoutWebpack })
+                Debug = true })
 
 
     Target.create "CopyFSACNetcore" (fun _ ->
