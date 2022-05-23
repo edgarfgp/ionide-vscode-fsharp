@@ -2,7 +2,6 @@ namespace Ionide.VSCode.FSharp
 
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 
 module node = Node.Api
 open Fable.Core

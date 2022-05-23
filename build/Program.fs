@@ -399,11 +399,10 @@ let initTargets () =
 let buildTargetTree () =
     let (==>!) x y = x ==> y |> ignore
 
-    "YarnInstall" ==>! "RunScript"
-    "DotNetRestore" ==>! "RunScript"
-
-    "Clean" ==> "Format" ==> "RunScript"
-    ==>! "Default"
+    "YarnInstall" ==>! "Bundle"
+    "DotNetRestore" ==>! "Bundle"
+    "RunScript" ==>! "Bundle"
+    "Clean" ==> "Format" ==> "Bundle" ==>! "Default"
 
     "Clean"
     ==> "RunScript"

@@ -5,7 +5,6 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 
 open DTO
 open Ionide.VSCode.Helpers
@@ -14,6 +13,7 @@ open Ionide.VSCode.Helpers.Process
 module node = Node.Api
 
 module MSBuild =
+    let path = node.path
 
     let outputChannel = window.createOutputChannel "Ionide: MSBuild"
 
@@ -231,7 +231,7 @@ module MSBuild =
         let progressOpts = createEmpty<ProgressOptions>
         progressOpts.location <- U2.Case1 ProgressLocation.Window
 
-        MailboxProcessor.Start (fun inbox ->
+        MailboxProcessor.Start(fun inbox ->
             let rec messageLoop () =
                 async {
                     let! (path, continuation) = inbox.Receive()

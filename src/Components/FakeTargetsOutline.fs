@@ -6,7 +6,6 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 open Ionide.VSCode.Helpers
 open System.Collections.Generic
 
@@ -42,7 +41,7 @@ module FakeTargetsOutline =
         | DependencyModel of DependencyType
 
     type Model =
-        { AllTargets: Target []
+        { AllTargets: Target[]
           Label: string
           Description: string
           Declaration: Declaration option
@@ -117,11 +116,11 @@ module FakeTargetsOutline =
             Some
             <| getIconPath "auto-reveal-light.svg" "auto-reveal-dark.svg"
 
-    let tryFindTarget (allTargets: Target []) (name: string) =
+    let tryFindTarget (allTargets: Target[]) (name: string) =
         allTargets
         |> Seq.tryFind (fun t -> t.Name.ToLowerInvariant() = name.ToLowerInvariant())
 
-    let rec depAsModel (allTargets: Target []) (t: DependencyType) (d: Dependency) =
+    let rec depAsModel (allTargets: Target[]) (t: DependencyType) (d: Dependency) =
         let mutable children = None
 
         { AllTargets = allTargets
@@ -147,7 +146,7 @@ module FakeTargetsOutline =
                     children <- Some n
                     n }
 
-    and targetAsModel (allTargets: Target []) (t: Target) =
+    and targetAsModel (allTargets: Target[]) (t: Target) =
         let mutable children = None
 
         { AllTargets = allTargets
@@ -380,7 +379,7 @@ module FakeTargetsOutline =
         window.onDidChangeActiveTextEditor.Invoke(unbox onDidChangeActiveTextEditor)
         |> context.Subscribe
 
-        refresh.event.Invoke (fun uri ->
+        refresh.event.Invoke(fun uri ->
             if isEnabledFor uri then
                 reallyRefresh.fire (None)
 
@@ -400,8 +399,9 @@ module FakeTargetsOutline =
                     let line = decl.Line
 
                     let args =
-                        createObj [ "lineNumber" ==> line
-                                    "at" ==> "center" ]
+                        createObj
+                            [ "lineNumber" ==> line
+                              "at" ==> "center" ]
 
                     commands.executeCommand ("revealLine", Some(box args))
                     |> unbox
@@ -482,8 +482,7 @@ module FakeTargetsOutline =
                             let procExp =
                                 vscode.ProcessExecution.Create(
                                     dotnet,
-                                    ResizeArray [| yield fakeRuntime
-                                                   yield! args |],
+                                    ResizeArray [| yield fakeRuntime; yield! args |],
                                     opts
                                 )
 

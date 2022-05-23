@@ -6,7 +6,6 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 open Ionide.VSCode.Helpers
 open System.Collections.Generic
 open System.Text.RegularExpressions
@@ -401,8 +400,9 @@ module SolutionExplorer =
 
                         c.arguments <-
                             Some(
-                                ResizeArray [| Some(box (vscode.Uri.file p))
-                                               Some options |]
+                                ResizeArray
+                                    [| Some(box (vscode.Uri.file p))
+                                       Some options |]
                             )
 
                         Some c
@@ -714,10 +714,10 @@ module SolutionExplorer =
                                     else if output.IsSome then
                                         output.Value + ".fsproj"
                                     else
-                                        (path.dirname workspace.rootPath.Value)
+                                        (node.path.dirname workspace.rootPath.Value)
                                         + ".fsproj"
 
-                                let proj = path.join (workspace.rootPath.Value, dir, name, pname)
+                                let proj = node.path.join (workspace.rootPath.Value, dir, name, pname)
                                 let args = [ "sln"; slnName; "add"; proj ]
 
                                 Project.execWithDotnet MSBuild.outputChannel (ResizeArray args)
@@ -743,7 +743,7 @@ module SolutionExplorer =
 
         let treeViewId = ShowInActivity.initializeAndGetId ()
 
-        Project.workspaceChanged.Invoke (fun _ ->
+        Project.workspaceChanged.Invoke(fun _ ->
             emiter.fire None
             None)
         |> context.Subscribe

@@ -8,12 +8,11 @@ module Environment =
 
     open Fable.Core
     open Fable.Core.JsInterop
-    open global.Node
     open Ionide.VSCode.Helpers
 
     module node = Node.Api
 
-    let isWin = process.platform = Base.Platform.Win32
+    let isWin = node.process.platform = Node.Base.Platform.Win32
 
     let private (</>) a b =
         if isWin then
@@ -62,7 +61,7 @@ module Environment =
             if node.path.isAbsolute path then
                 None
             else
-                Some __dirname
+                Some node.__dirname
 
         let segments =
             path.Split [| char node.path.sep |]

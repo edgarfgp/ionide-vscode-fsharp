@@ -3,7 +3,6 @@ module Ionide.VSCode.FSharp.InlayHints
 open Fable.Core
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 open Fable.Core.JsInterop
 
 let private logger =
@@ -42,7 +41,7 @@ let useLongTooltip () : bool =
     |> Option.map not
     |> Option.defaultValue true
 
-let inline createEdit (pos: Position, text: string): TextEdit =
+let inline createEdit (pos: Position, text: string) : TextEdit =
     let e = createEmpty<TextEdit>
     e.range <- vscode.Range.Create(pos, pos)
     e.newText <- text
@@ -102,7 +101,7 @@ let inlayProvider () =
     let mutable ev = events.event
     let disposables = ResizeArray()
 
-    workspace.onDidChangeTextDocument.Invoke (fun e ->
+    workspace.onDidChangeTextDocument.Invoke(fun e ->
         if e.document.languageId = "fsharp" then
             events.fire ()
 

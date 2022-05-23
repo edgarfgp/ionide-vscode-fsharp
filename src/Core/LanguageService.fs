@@ -6,12 +6,13 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 open Ionide.VSCode.Helpers
 open Semver
 
 open DTO
 open LanguageServer
+
+module node = Node.Api
 
 module Notifications =
     type DocumentParsedEvent =
@@ -42,16 +43,18 @@ module LanguageService =
         /// Position in a text document expressed as zero-based line and zero-based character offset.
         /// A position is between two characters like an ‘insert’ cursor in a editor.
         type Position =
-            { /// Line position in a document (zero-based).
-              Line: int
+            {
+                /// Line position in a document (zero-based).
+                Line: int
 
-              /// Character offset on a line in a document (zero-based). Assuming that the line is
-              /// represented as a string, the `character` value represents the gap between the
-              /// `character` and `character + 1`.
-              ///
-              /// If the character value is greater than the line length it defaults back to the
-              /// line length.
-              Character: int }
+                /// Character offset on a line in a document (zero-based). Assuming that the line is
+                /// represented as a string, the `character` value represents the gap between the
+                /// `character` and `character + 1`.
+                ///
+                /// If the character value is greater than the line length it defaults back to the
+                /// line length.
+                Character: int
+            }
 
         type DocumentUri = string
 
@@ -69,7 +72,7 @@ module LanguageService =
         type FileParams = { Project: TextDocumentIdentifier }
 
         type WorkspaceLoadParms =
-            { TextDocuments: TextDocumentIdentifier [] }
+            { TextDocuments: TextDocumentIdentifier[] }
 
         type HighlightingRequest =
             { TextDocument: TextDocumentIdentifier }
@@ -155,9 +158,9 @@ module LanguageService =
                 match location.Data.SdkRoot with
                 | Some root ->
                     if Environment.isWin then
-                        return Some(path.join (root, "dotnet.exe"))
+                        return Some(node.path.join (root, "dotnet.exe"))
                     else
-                        return Some(path.join (root, "dotnet"))
+                        return Some(node.path.join (root, "dotnet"))
                 | None -> return None
             | Some location -> return Some location
         }
@@ -184,7 +187,7 @@ module LanguageService =
             cl.sendRequest ("fsharp/documentation", req)
             |> Promise.map (fun (res: Types.PlainNotification) ->
                 res.content
-                |> ofJson<Result<DocumentationDescription [] []>>)
+                |> ofJson<Result<DocumentationDescription[][]>>)
 
     let documentationForSymbol xmlSig assembly =
         match client with
@@ -197,7 +200,7 @@ module LanguageService =
             cl.sendRequest ("fsharp/documentationSymbol", req)
             |> Promise.map (fun (res: Types.PlainNotification) ->
                 res.content
-                |> ofJson<Result<DocumentationDescription [] []>>)
+                |> ofJson<Result<DocumentationDescription[][]>>)
 
     let signature (uri: Uri) line col =
         match client with
@@ -241,7 +244,7 @@ module LanguageService =
             let req: Types.FileParams = { Project = { Uri = uri.ToDocumentUri } }
 
             cl.sendRequest ("fsharp/lineLens", req)
-            |> Promise.map (fun (res: Types.PlainNotification) -> res.content |> ofJson<Result<Symbols []>>)
+            |> Promise.map (fun (res: Types.PlainNotification) -> res.content |> ofJson<Result<Symbols[]>>)
 
     let compile s =
         match client with
@@ -517,7 +520,7 @@ module LanguageService =
             cl.sendRequest ("fsharp/pipelineHint", req)
             |> Promise.map (fun (res: Types.PlainNotification) -> res.content |> ofJson<PipelineHintsResult>)
 
-    let inlayHints (fileUri: Uri, range) : JS.Promise<Types.InlayHint []> =
+    let inlayHints (fileUri: Uri, range) : JS.Promise<Types.InlayHint[]> =
         match client with
         | None -> Promise.empty
         | Some cl ->
@@ -579,18 +582,19 @@ Consider:
     let fsi () =
         let fileExists (path: string) : JS.Promise<bool> =
             Promise.create (fun success _failure ->
-                fs.access (!^path, fs.constants.F_OK, (fun err -> success (err.IsNone))))
+                node.fs.access (!^path, node.fs.constants.F_OK, (fun err -> success (err.IsNone))))
 
         let getAnyCpuFsiPathFromCompilerLocation (location: CompilerLocation) =
             promise {
                 match location.Fsi with
                 | Some fsi ->
                     // Only rewrite if FSAC returned 'fsi.exe' (For future-proofing)
-                    if path.basename fsi = "fsi.exe" then
+                    if node.path.basename fsi = "fsi.exe" then
                         // If there is an anyCpu variant in the same dir we do the rewrite
                         let anyCpuFile =
-                            path.join [| path.dirname fsi
-                                         "fsiAnyCpu.exe" |]
+                            node.path.join
+                                [| node.path.dirname fsi
+                                   "fsiAnyCpu.exe" |]
 
                         let! anyCpuExists = fileExists anyCpuFile
 
@@ -617,8 +621,7 @@ Consider:
 
     let private createClient (opts: Executable) =
         let options =
-            createObj [ "run" ==> opts
-                        "debug" ==> opts ]
+            createObj [ "run" ==> opts; "debug" ==> opts ]
             |> unbox<ServerOptions>
 
         let fileDeletedWatcher =
@@ -639,7 +642,7 @@ Consider:
 
             // this type needs to be updated on the bindings - DocumentSelector is a (string|DocumentFilter) [] now only.
             // that's why we need to coerce it here.
-            opts.documentSelector <- Some !^ [| selector |]
+            opts.documentSelector <- Some !^[| selector |]
             opts.synchronize <- Some synch
             opts.revealOutputChannelOn <- Some Client.RevealOutputChannelOn.Never
 
@@ -753,7 +756,7 @@ Consider:
                 promise {
                     let fsautocompletePath =
                         if String.IsNullOrEmpty fsacNetcorePath then
-                            path.join (VSCodeExtension.ionidePluginPath (), "bin", "fsautocomplete.dll")
+                            node.path.join (VSCodeExtension.ionidePluginPath (), "bin", "fsautocomplete.dll")
                         else
                             fsacNetcorePath
 
@@ -768,12 +771,12 @@ Consider:
                         | [] -> None
                         | fsacEnvVars ->
                             // only need to set the process env if FSAC needs rollfoward env vars.
-                            let keys = Node.Util.Object.keys process.env
+                            let keys = Node.Util.Object.keys node.``process``.env
 
                             let baseEnv =
                                 keys
                                 |> Seq.toList
-                                |> List.map (fun k -> k, process.env?(k))
+                                |> List.map (fun k -> k, node.``process``.env?(k))
 
                             let combinedEnv = baseEnv @ fsacEnvVars |> ResizeArray
                             let envObj = createObj combinedEnv

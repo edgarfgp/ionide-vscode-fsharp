@@ -2,7 +2,6 @@ namespace Ionide.VSCode.FSharp
 
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 open Fable.Core.JsInterop
 
 module node = Node.Api
@@ -228,13 +227,15 @@ module FSharpLiterate =
                 | Some p -> p.reveal (!! -2, true)
                 | None ->
                     let opts =
-                        createObj [ "enableCommandUris" ==> true
-                                    "enableFindWidget" ==> true
-                                    "retainContextWhenHidden" ==> true ]
+                        createObj
+                            [ "enableCommandUris" ==> true
+                              "enableFindWidget" ==> true
+                              "retainContextWhenHidden" ==> true ]
 
                     let viewOpts =
-                        createObj [ "preserveFocus" ==> true
-                                    "viewColumn" ==> -2 ]
+                        createObj
+                            [ "preserveFocus" ==> true
+                              "viewColumn" ==> -2 ]
 
                     let p =
                         window.createWebviewPanel ("fsharpLiterate", "F# Literate", !!viewOpts, opts)

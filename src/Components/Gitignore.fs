@@ -2,12 +2,13 @@
 namespace Ionide.VSCode.FSharp
 
 module Gitignore =
-
-    open global.Node
     open Fable.Import.VSCode
     open Fable.Import.VSCode.Vscode
     open Ionide.VSCode.FSharp
     open Fable.Core.JsInterop
+
+    let path = Node.Api.path
+    let fs = Node.Api.fs
 
     let GITIGNORE_KEY = "FSharp.suggestGitignore"
 
@@ -59,7 +60,7 @@ module Gitignore =
     let disablePromptForProject () =
         Configuration.set GITIGNORE_KEY (Some(box false))
 
-    let patternsToIgnore = [ ".fake"; ]
+    let patternsToIgnore = [ ".fake" ]
 
     let checkForPatternsAndPromptUser () =
         promise {

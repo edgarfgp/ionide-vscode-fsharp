@@ -6,14 +6,12 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 open Ionide.VSCode.Helpers
 
 open DTO
 open System.Collections.Generic
 
 module node = Node.Api
-
 
 module Project =
     let private logger =
@@ -57,11 +55,12 @@ module Project =
 
     let excluded =
         "FSharp.excludeProjectDirectories"
-        |> Configuration.get [| ".git"
-                                "paket-files"
-                                ".fable"
-                                "packages"
-                                "node_modules" |]
+        |> Configuration.get
+            [| ".git"
+               "paket-files"
+               ".fable"
+               "packages"
+               "node_modules" |]
 
     let deepLevel =
         "FSharp.workspaceModePeekDeepLevel"
@@ -343,7 +342,7 @@ module Project =
             extensionWorkspaceState <- Some context.workspaceState
 
         let private parse (value: string) =
-            let fullPath = path.resolve (workspace.rootPath.Value, value)
+            let fullPath = node.path.resolve (workspace.rootPath.Value, value)
 
             if value.ToLowerInvariant().EndsWith(".sln") then
                 ConfiguredWorkspace.Solution fullPath
@@ -354,13 +353,13 @@ module Project =
             match value with
             | ConfiguredWorkspace.Directory dir ->
                 try
-                    let stats = fs.statSync (U2.Case1 dir)
+                    let stats = node.fs.statSync (U2.Case1 dir)
                     not (isNull stats) && (stats.isDirectory ())
                 with
                 | _ -> false
             | ConfiguredWorkspace.Solution sln ->
                 try
-                    let stats = fs.statSync (U2.Case1 sln)
+                    let stats = node.fs.statSync (U2.Case1 sln)
                     not (isNull stats) && (stats.isFile ())
                 with
                 | _ -> false
@@ -410,10 +409,10 @@ module Project =
 
             if isConfiguredInWorkspace () then
                 let relativePath =
-                    let raw = path.relative (workspace.rootPath.Value, configuredPath)
+                    let raw = node.path.relative (workspace.rootPath.Value, configuredPath)
 
                     if
-                        not (path.isAbsolute raw)
+                        not (node.path.isAbsolute raw)
                         && not (raw.StartsWith "..")
                     then
                         "./" + raw
@@ -473,7 +472,7 @@ module Project =
                 item.description <- Some(sprintf "Directory with %i projects" dir.Fsprojs.Length)
                 item
             | WorkspacePeekFound.Solution sln ->
-                let relative = path.relative (workspace.rootPath.Value, sln.Path)
+                let relative = node.path.relative (workspace.rootPath.Value, sln.Path)
                 let item = createEmpty<QuickPickItem>
                 item.label <- sprintf "%s%s" check relative
                 item.description <- Some(sprintf "Solution with %i projects" (countProjectsInSln sln))
@@ -791,7 +790,7 @@ module Project =
         commands.registerCommand (
             "showProjStatusFromIndicator",
             (fun _ ->
-                let name = path.basename (ProjectStatus.path)
+                let name = node.path.basename (ProjectStatus.path)
 
                 ShowStatus.CreateOrShow(ProjectStatus.path, name)
                 |> box

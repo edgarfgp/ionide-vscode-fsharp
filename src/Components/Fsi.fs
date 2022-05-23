@@ -5,7 +5,6 @@ open Fable.Core
 open Fable.Core.JsInterop
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 
 open DTO
 open Ionide.VSCode.Helpers
@@ -13,6 +12,9 @@ open Ionide.VSCode.Helpers
 module node = Node.Api
 
 module Fsi =
+    let path = node.path
+    let fs = node.fs
+
     module SdkScriptsNotify =
 
         open Ionide.VSCode.FSharp
@@ -114,13 +116,15 @@ module Fsi =
                     | Some p -> p.reveal (!! -2, true)
                     | None ->
                         let opts =
-                            createObj [ "enableCommandUris" ==> true
-                                        "enableFindWidget" ==> true
-                                        "retainContextWhenHidden" ==> true ]
+                            createObj
+                                [ "enableCommandUris" ==> true
+                                  "enableFindWidget" ==> true
+                                  "retainContextWhenHidden" ==> true ]
 
                         let viewOpts =
-                            createObj [ "preserveFocus" ==> true
-                                        "viewColumn" ==> -2 ]
+                            createObj
+                                [ "preserveFocus" ==> true
+                                  "viewColumn" ==> -2 ]
 
                         let p = window.createWebviewPanel ("fsiWatcher", "FSI Watcher", !!viewOpts, opts)
                         let onClose () = panel <- None
@@ -435,9 +439,10 @@ module Fsi =
 
     let private moveCursorDownOneLine () =
         let args =
-            createObj [ "to" ==> "down"
-                        "by" ==> "line"
-                        "value" ==> 1 ]
+            createObj
+                [ "to" ==> "down"
+                  "by" ==> "line"
+                  "value" ==> 1 ]
 
         commands.executeCommand ("cursorMove", Some(box args))
         |> ignore

@@ -6,7 +6,6 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 
 open DTO
 open Ionide.VSCode.Helpers
@@ -53,8 +52,8 @@ module FsProjEdit =
                         | Some editor ->
 
                             let relativePathToFile =
-                                let dir = path.dirname projectPath
-                                path.relative (dir, editor.document.fileName)
+                                let dir = node.path.dirname projectPath
+                                node.path.relative (dir, editor.document.fileName)
 
                             addFile projectPath relativePathToFile
                         | None -> Promise.empty

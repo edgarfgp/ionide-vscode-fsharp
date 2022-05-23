@@ -6,7 +6,6 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.VSCode
 open Fable.Import.VSCode.Vscode
-open global.Node
 open Ionide.VSCode.Helpers
 open DTO
 
@@ -254,13 +253,15 @@ module InfoPanel =
             | Some p -> p.reveal (!! -2, true)
             | None ->
                 let opts =
-                    createObj [ "enableCommandUris" ==> true
-                                "enableFindWidget" ==> true
-                                "retainContextWhenHidden" ==> true ]
+                    createObj
+                        [ "enableCommandUris" ==> true
+                          "enableFindWidget" ==> true
+                          "retainContextWhenHidden" ==> true ]
 
                 let viewOpts =
-                    createObj [ "preserveFocus" ==> true
-                                "viewColumn" ==> -2 ]
+                    createObj
+                        [ "preserveFocus" ==> true
+                          "viewColumn" ==> -2 ]
 
                 let p = window.createWebviewPanel ("infoPanel", "Info Panel", !!viewOpts, opts)
 

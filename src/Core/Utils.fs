@@ -191,16 +191,15 @@ module Message =
 [<AutoOpen>]
 module JS =
     open Fable.Core
-    open global.Node
 
     /// Schedules execution of a one-time callback after delay milliseconds.
     /// Returns a Timeout for use with `clearTimeout`.
     [<Emit("setTimeout($0, $1)")>]
-    let setTimeout (callback: unit -> unit) (delay: float) : Base.Timer = jsNative
+    let setTimeout (callback: unit -> unit) (delay: float) : Node.Base.Timer = jsNative
 
     /// Cancels a Timeout object created by `setTimeout`.
     [<Emit("clearTimeout($0)")>]
-    let clearTimeout (timeout: Base.Timer) : unit = jsNative
+    let clearTimeout (timeout: Node.Base.Timer) : unit = jsNative
 
     [<Emit("debugger")>]
     let debugger () : unit = failwith "JS Only"
@@ -278,7 +277,7 @@ module Patterns =
 [<RequireQualifiedAccess>]
 module Array =
 
-    let splitAt (n: int) (xs: 'a []) : 'a [] * 'a [] =
+    let splitAt (n: int) (xs: 'a[]) : 'a[] * 'a[] =
         match xs with
         | [||]
         | [| _ |] -> xs, [||]
@@ -421,11 +420,11 @@ type ShowStatus private (panel: WebviewPanel, body: string) as this =
 module VSCodeExtension =
 
     let private extensionName =
-        #if IONIDE_EXPERIMENTAL
-
+#if IONIDE_EXPERIMENTAL
+        "ionide-fsharp-experimental"
 #else
         "ionide-fsharp"
-    #endif
+#endif
 
     let ionidePluginPath () =
 
