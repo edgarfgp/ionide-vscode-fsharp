@@ -630,9 +630,9 @@ Consider:
         let clientOpts =
             let opts = createEmpty<Client.LanguageClientOptions>
 
-            let selector =
-                createObj [ "language" ==> "fsharp" ]
-                |> unbox<Client.DocumentSelector>
+            let selector: Client.DocumentSelector =
+                let filter = createObj ["langauge" ==> "fsharp"] :?> DocumentFilter
+                [| U2.Case2 filter |]
 
             let initOpts = createObj [ "AutomaticWorkspaceInit" ==> false ]
 
@@ -642,7 +642,7 @@ Consider:
 
             // this type needs to be updated on the bindings - DocumentSelector is a (string|DocumentFilter) [] now only.
             // that's why we need to coerce it here.
-            opts.documentSelector <- Some !^[| selector |]
+            opts.documentSelector <- Some (U2.Case1 selector)
             opts.synchronize <- Some synch
             opts.revealOutputChannelOn <- Some Client.RevealOutputChannelOn.Never
 
