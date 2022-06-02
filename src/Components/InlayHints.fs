@@ -173,9 +173,9 @@ let activate (context: ExtensionContext) =
     let provider, disposables = inlayProvider ()
     toggleSupported <- supportsToggle vscode.version
 
-    let selector =
-        createObj [ "language" ==> "fsharp" ]
-        |> unbox<DocumentFilter>
+    let selector: DocumentSelector =
+        let filter: DocumentFilter = jsOptions<TextDocumentFilter> (fun f -> f.language <- Some "fsharp") |> DocumentFilter.Case1
+        [| U2.Case2 filter |]
 
     commands.registerCommand (
         Commands.disableLongTooltip,
@@ -223,7 +223,7 @@ let activate (context: ExtensionContext) =
     )
     |> context.Subscribe
 
-    languages.registerInlayHintsProvider (DocumentSelector.Case1 selector, provider)
+    languages.registerInlayHintsProvider (selector, provider)
     |> context.Subscribe
 
     disposables |> Seq.iter context.Subscribe
